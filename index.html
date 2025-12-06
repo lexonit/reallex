@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RealLex</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              background: 'var(--background)',
+              foreground: 'var(--foreground)',
+              card: 'var(--card)',
+              'card-foreground': 'var(--card-foreground)',
+              popover: 'var(--popover)',
+              'popover-foreground': 'var(--popover-foreground)',
+              primary: 'var(--primary)',
+              'primary-foreground': 'var(--primary-foreground)',
+              secondary: 'var(--secondary)',
+              'secondary-foreground': 'var(--secondary-foreground)',
+              muted: 'var(--muted)',
+              'muted-foreground': 'var(--muted-foreground)',
+              accent: 'var(--accent)',
+              'accent-foreground': 'var(--accent-foreground)',
+              destructive: 'var(--destructive)',
+              'destructive-foreground': 'var(--destructive-foreground)',
+              border: 'var(--border)',
+              input: 'var(--input)',
+              ring: 'var(--ring)',
+            },
+            borderRadius: {
+              lg: 'var(--radius)',
+              md: 'calc(var(--radius) - 2px)',
+              sm: 'calc(var(--radius) - 4px)',
+            },
+            animation: {
+              spotlight: "spotlight 2s ease .75s 1 forwards",
+              shimmer: "shimmer 2s linear infinite",
+            },
+            keyframes: {
+              spotlight: {
+                "0%": {
+                  opacity: 0,
+                  transform: "translate(-72%, -62%) scale(0.5)",
+                },
+                "100%": {
+                  opacity: 1,
+                  transform: "translate(-50%,-40%) scale(1)",
+                },
+              },
+              shimmer: {
+                from: {
+                  backgroundPosition: "0 0",
+                },
+                to: {
+                  backgroundPosition: "-200% 0",
+                },
+              },
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      :root {
+        /* Pastel Theme (OKLCH) */
+        --background: oklch(100% 0 0);          /* base-100 */
+        --foreground: oklch(20% 0 0);           /* base-content */
+
+        --card: oklch(98.462% 0.001 247.838);   /* base-200 */
+        --card-foreground: oklch(20% 0 0);      /* base-content */
+
+        --popover: oklch(100% 0 0);             /* base-100 */
+        --popover-foreground: oklch(20% 0 0);   /* base-content */
+
+        --primary: oklch(90% 0.063 306.703);    /* primary */
+        --primary-foreground: oklch(49% 0.265 301.924); /* primary-content */
+
+        --secondary: oklch(89% 0.058 10.001);   /* secondary */
+        --secondary-foreground: oklch(51% 0.222 16.935); /* secondary-content */
+
+        --muted: oklch(92.462% 0.001 247.838);  /* base-300 */
+        --muted-foreground: oklch(55% 0.046 257.417); /* neutral */
+
+        --accent: oklch(90% 0.093 164.15);      /* accent */
+        --accent-foreground: oklch(50% 0.118 165.612); /* accent-content */
+
+        --destructive: oklch(80% 0.114 19.571); /* error */
+        --destructive-foreground: oklch(50% 0.213 27.518); /* error-content */
+
+        --border: oklch(92.462% 0.001 247.838); /* base-300 */
+        --input: oklch(92.462% 0.001 247.838);  /* base-300 */
+        --ring: oklch(90% 0.063 306.703);       /* primary */
+
+        --radius: 1rem;                         /* radius-selector/box */
+      }
+      
+      .dark {
+        /* Adjusted Dark Mode for Pastel Compatibility */
+        --background: oklch(12% 0.042 264.695);
+        --foreground: oklch(98% 0.001 247.838);
+        
+        --card: oklch(16% 0.042 264.695);
+        --card-foreground: oklch(98% 0.001 247.838);
+        
+        --popover: oklch(16% 0.042 264.695);
+        --popover-foreground: oklch(98% 0.001 247.838);
+        
+        --primary: oklch(70% 0.15 306.703);     /* Darker version of pastel primary */
+        --primary-foreground: oklch(100% 0 0);
+        
+        --secondary: oklch(25% 0.058 10.001);
+        --secondary-foreground: oklch(90% 0 0);
+        
+        --muted: oklch(20% 0.02 260);
+        --muted-foreground: oklch(70% 0.02 260);
+        
+        --accent: oklch(25% 0.093 164.15);
+        --accent-foreground: oklch(90% 0 0);
+        
+        --destructive: oklch(40% 0.15 20);
+        --destructive-foreground: oklch(98% 0 0);
+        
+        /* Softer border for dark mode */
+        --border: oklch(20% 0.02 260);
+        --input: oklch(20% 0.02 260);
+        --ring: oklch(70% 0.15 306.703);
+        
+        --radius: 1rem;
+      }
+      
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "framer-motion": "https://aistudiocdn.com/framer-motion@^11.0.8",
+    "clsx": "https://aistudiocdn.com/clsx@^2.1.0",
+    "tailwind-merge": "https://aistudiocdn.com/tailwind-merge@^2.2.1",
+    "mongoose": "https://aistudiocdn.com/mongoose@^9.0.0",
+    "express": "https://aistudiocdn.com/express@^5.2.1",
+    "dotenv": "https://aistudiocdn.com/dotenv@^17.2.3",
+    "bcryptjs": "https://aistudiocdn.com/bcryptjs@^3.0.3",
+    "jsonwebtoken": "https://aistudiocdn.com/jsonwebtoken@^9.0.3",
+    "cors": "https://aistudiocdn.com/cors@^2.8.5",
+    "cookie-parser": "https://aistudiocdn.com/cookie-parser@^1.4.7",
+    "ws": "https://aistudiocdn.com/ws@^8.18.3",
+    "http": "https://aistudiocdn.com/http@^0.0.1-security",
+    "graphql": "https://aistudiocdn.com/graphql@^16.12.0",
+    "express-graphql": "https://aistudiocdn.com/express-graphql@^0.12.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-background text-foreground antialiased min-h-screen selection:bg-primary/30">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

@@ -14,6 +14,7 @@ export enum NavigationTab {
   CLIENT_PORTAL = 'CLIENT_PORTAL',
   CALENDAR = 'CALENDAR',
   TASKS = 'TASKS',
+  TEMPLATES = 'TEMPLATES',
 }
 
 export enum PropertyStatus {
@@ -312,4 +313,29 @@ export interface PipelineStage {
   name: string;
   color: string;
   order: number;
+}
+
+export interface RealEstateTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  preview: string;
+  features: string[];
+  pages: TemplatePage[];
+  colorScheme: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  layout: 'modern' | 'classic' | 'minimal' | 'luxury' | 'corporate';
+  responsive: boolean;
+  downloadUrl?: string;
+}
+
+export interface TemplatePage {
+  id: string;
+  name: string;
+  component: string;
+  route: string;
 }

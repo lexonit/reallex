@@ -44,7 +44,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onRegisterClick }
             </svg>
             <div className="flex flex-col">
                 <span className="text-2xl font-bold leading-none">{companyName}</span>
-                <span className="text-xs text-muted-foreground font-medium">Powered by Lexonit</span>
+                <a href="https://lexonit.com" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground font-medium hover:text-primary transition-colors">Powered by Lexonit</a>
             </div>
           </div>
         </div>

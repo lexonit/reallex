@@ -39,7 +39,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onBack, onRegisterSu
               </svg>
               <div className="flex flex-col">
                   <span className="text-xl font-bold leading-none">{companyName}</span>
-                  <span className="text-[10px] text-muted-foreground font-medium">Powered by Lexonit</span>
+                  <a href="https://lexonit.com" target="_blank" rel="noopener noreferrer" className="text-[10px] text-muted-foreground font-medium hover:text-primary transition-colors">Powered by Lexonit</a>
               </div>
             </div>
             <CardTitle>Register New Vendor</CardTitle>

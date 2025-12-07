@@ -1,36 +1,22 @@
 
 import React, { useState } from 'react';
+import { BrowserRouter as Router, useNavigate } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
-import { Dashboard } from './components/Dashboard';
-import { LeadList } from './components/LeadList';
-import { Properties } from './components/Properties';
-import { LandingPage } from './components/LandingPage';
-import { LoginPage } from './components/auth/LoginPage';
-import { RegisterPage } from './components/auth/RegisterPage';
-import { ApprovalsQueue } from './components/admin/ApprovalsQueue';
-import { UserManagement } from './components/admin/UserManagement';
-import { SettingsPage } from './components/settings/SettingsPage';
-import { AnalyticsDashboard } from './components/AnalyticsDashboard'; 
-import { DealsPage } from './components/DealsPage'; // Updated Import
-import { ClientPortal } from './components/client/ClientPortal';
-import { CalendarPage } from './components/CalendarPage';
-import { TasksPage } from './components/TasksPage';
-import { ContactsPage } from './components/ContactsPage';
-import { DocumentsPage } from './components/DocumentsPage';
-import { NavigationTab, CurrentUser, UserRole } from './types';
-import { Bell, Search, Menu, Moon, Sun, UserCircle, LogOut, Settings } from 'lucide-react';
+import { CurrentUser, NavigationTab, UserRole } from './types';
+import { Bell, Search, Menu, Moon, Sun, Settings, LogOut } from 'lucide-react';
 import { Button } from './components/Button';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Avatar } from './components/ui/Avatar';
 import { AnimatePresence, motion } from 'framer-motion';
+import { AppRoutes } from './routes/AppRoutes';
 
 const AppContent: React.FC = () => {
   const [authView, setAuthView] = useState<'LOGIN' | 'REGISTER' | 'APP'>('APP'); 
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
-  const [activeTab, setActiveTab] = useState<NavigationTab>(NavigationTab.DASHBOARD);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false); // Default to false for Pastel Light theme
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -39,31 +25,31 @@ const AppContent: React.FC = () => {
 
   const handleLogin = (role: UserRole) => {
     if (role === 'ADMIN') {
-        setCurrentUser({
-            id: 'admin-1',
-            name: 'John Doe',
-            email: 'admin@prestige.com',
-            role: 'ADMIN'
-        });
-        setActiveTab(NavigationTab.DASHBOARD);
+      setCurrentUser({
+        id: 'admin-1',
+        name: 'John Doe',
+        email: 'admin@prestige.com',
+        role: 'ADMIN'
+      });
+      navigate('/dashboard');
     } else if (role === 'AGENT') {
-        setCurrentUser({
-            id: 'agent-1',
-            name: 'Sarah Connor',
-            email: 'sarah@prestige.com',
-            role: 'AGENT',
-            avatar: undefined
-        });
-        setActiveTab(NavigationTab.DASHBOARD);
+      setCurrentUser({
+        id: 'agent-1',
+        name: 'Sarah Connor',
+        email: 'sarah@prestige.com',
+        role: 'AGENT',
+        avatar: undefined
+      });
+      navigate('/dashboard');
     } else if (role === 'CLIENT') {
-        setCurrentUser({
-            id: 'client-1',
-            name: 'Alex Client',
-            email: 'alex@client.com',
-            role: 'CLIENT',
-            avatar: undefined
-        });
-        setActiveTab(NavigationTab.CLIENT_PORTAL);
+      setCurrentUser({
+        id: 'client-1',
+        name: 'Alex Client',
+        email: 'alex@client.com',
+        role: 'CLIENT',
+        avatar: undefined
+      });
+      navigate('/client-portal');
     }
     setAuthView('APP');
   };
@@ -71,67 +57,53 @@ const AppContent: React.FC = () => {
   const handleLogout = () => {
     setCurrentUser(null);
     setAuthView('LOGIN');
-    setActiveTab(NavigationTab.DASHBOARD);
+    navigate('/login');
   };
 
-  const renderContent = () => {
-    // Safety check for client role - Allow Portal, Tasks, and Calendar
-    if (currentUser?.role === 'CLIENT') {
-        if (![NavigationTab.CLIENT_PORTAL, NavigationTab.TASKS, NavigationTab.CALENDAR].includes(activeTab)) {
-             return <ClientPortal user={currentUser} />;
-        }
-    }
-
-    switch (activeTab) {
-      case NavigationTab.DASHBOARD:
-        return <Dashboard onNavigate={setActiveTab} user={currentUser} />;
-      case NavigationTab.LEADS:
-        return <LeadList user={currentUser} />;
-      case NavigationTab.PROPERTIES:
-        return <Properties user={currentUser} />;
-      case NavigationTab.DEALS:
-        return <DealsPage user={currentUser} />;
-      case NavigationTab.DOCUMENTS:
-        return <DocumentsPage user={currentUser} />;
-      case NavigationTab.APPROVALS:
-        return <ApprovalsQueue />;
-      case NavigationTab.USERS:
-        return <UserManagement />;
-      case NavigationTab.ANALYTICS:
-        return <AnalyticsDashboard />;
-      case NavigationTab.SETTINGS:
-        return <SettingsPage onNavigate={setActiveTab} />;
-      case NavigationTab.CLIENT_PORTAL:
-        return currentUser ? <ClientPortal user={currentUser} /> : null;
-      case NavigationTab.CALENDAR:
-        return <CalendarPage user={currentUser} />;
-      case NavigationTab.TASKS:
-        return <TasksPage user={currentUser} />;
-      case NavigationTab.CONTACTS:
-        return <ContactsPage user={currentUser} />;
-      default:
-        return <Dashboard onNavigate={setActiveTab} user={currentUser} />;
+  const handleNavigate = (tab: NavigationTab) => {
+    // Convert NavigationTab enum to route paths (for compatibility with existing components)
+    const routeMap: Record<NavigationTab, string> = {
+      [NavigationTab.DASHBOARD]: '/dashboard',
+      [NavigationTab.LEADS]: '/leads',
+      [NavigationTab.PROPERTIES]: '/properties',
+      [NavigationTab.DEALS]: '/deals',
+      [NavigationTab.DOCUMENTS]: '/documents',
+      [NavigationTab.APPROVALS]: '/approvals',
+      [NavigationTab.USERS]: '/users',
+      [NavigationTab.TEMPLATES]: '/templates',
+      [NavigationTab.ANALYTICS]: '/analytics',
+      [NavigationTab.SETTINGS]: '/settings',
+      [NavigationTab.CLIENT_PORTAL]: '/client-portal',
+      [NavigationTab.CALENDAR]: '/calendar',
+      [NavigationTab.TASKS]: '/tasks',
+      [NavigationTab.CONTACTS]: '/contacts',
+    };
+    
+    const route = routeMap[tab];
+    if (route) {
+      navigate(route);
     }
   };
 
+  // If user is not logged in, show auth/landing routes
   if (!currentUser) {
-    if (authView === 'REGISTER') {
-      return <RegisterPage onBack={() => setAuthView('LOGIN')} onRegisterSuccess={() => setAuthView('LOGIN')} />;
-    }
-    if (authView === 'LOGIN') {
-      return <LoginPage onLogin={handleLogin} onRegisterClick={() => setAuthView('REGISTER')} />;
-    }
-    return <LandingPage onLogin={() => setAuthView('LOGIN')} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />;
+    return (
+      <AppRoutes
+        currentUser={currentUser}
+        authView={authView}
+        isDarkMode={isDarkMode}
+        toggleDarkMode={toggleDarkMode}
+        handleLogin={handleLogin}
+        handleLogout={handleLogout}
+        onNavigate={handleNavigate}
+      />
+    );
   }
 
+  // Layout for authenticated users
   return (
     <div className="min-h-screen bg-background text-foreground flex overflow-hidden font-sans">
       <Sidebar 
-        activeTab={activeTab} 
-        onNavigate={(tab) => {
-          setActiveTab(tab);
-          setSidebarOpen(false);
-        }} 
         isOpen={sidebarOpen}
         userRole={currentUser.role}
       />
@@ -204,7 +176,7 @@ const AppContent: React.FC = () => {
                        {currentUser.role !== 'CLIENT' && (
                            <div className="p-2 space-y-1">
                               <button 
-                                 onClick={() => { setActiveTab(NavigationTab.SETTINGS); setIsProfileOpen(false); }}
+                                 onClick={() => { navigate('/settings'); setIsProfileOpen(false); }}
                                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-muted rounded-lg transition-colors text-left"
                               >
                                  <Settings className="h-4 w-4 text-muted-foreground" /> Account Settings
@@ -235,7 +207,15 @@ const AppContent: React.FC = () => {
 
         <div className="flex-1 overflow-auto p-6 md:p-8 scroll-smooth">
           <div className="max-w-7xl mx-auto">
-             {renderContent()}
+            <AppRoutes
+              currentUser={currentUser}
+              authView={authView}
+              isDarkMode={isDarkMode}
+              toggleDarkMode={toggleDarkMode}
+              handleLogin={handleLogin}
+              handleLogout={handleLogout}
+              onNavigate={handleNavigate}
+            />
           </div>
         </div>
       </main>
@@ -253,7 +233,9 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <AppContent />
+      <Router>
+        <AppContent />
+      </Router>
     </ThemeProvider>
   );
 };

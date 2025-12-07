@@ -1,35 +1,37 @@
 
 import React from 'react';
-import { LayoutDashboard, Users, Building, PieChart, Settings, CheckSquare, UserCog, Briefcase, FileText, Star, Calendar, ListTodo, Contact, FolderOpen } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { LayoutDashboard, Users, Building, PieChart, Settings, CheckSquare, UserCog, Briefcase, FileText, Star, Calendar, ListTodo, Contact, FolderOpen, Palette } from 'lucide-react';
 import { NavigationTab, UserRole } from '../types';
 import { cn } from '../lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface SidebarProps {
-  activeTab: NavigationTab;
-  onNavigate: (tab: NavigationTab) => void;
   isOpen: boolean;
   userRole?: UserRole;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onNavigate, isOpen, userRole }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, userRole }) => {
   const { companyName } = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
   
-  // Define available menu items
+  // Define available menu items with their routes
   const allMenuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', id: NavigationTab.DASHBOARD, roles: ['ADMIN', 'AGENT'] },
-    { icon: Star, label: 'My Portal', id: NavigationTab.CLIENT_PORTAL, roles: ['CLIENT'] }, // Client Portal Home
-    { icon: ListTodo, label: 'Tasks', id: NavigationTab.TASKS, roles: ['ADMIN', 'AGENT', 'CLIENT'] },
-    { icon: Calendar, label: 'Calendar', id: NavigationTab.CALENDAR, roles: ['ADMIN', 'AGENT', 'CLIENT'] },
-    { icon: Users, label: 'Leads', id: NavigationTab.LEADS, roles: ['ADMIN', 'AGENT'] },
-    { icon: Briefcase, label: 'Deals', id: NavigationTab.DEALS, roles: ['ADMIN', 'AGENT'] },
-    { icon: Contact, label: 'Contacts', id: NavigationTab.CONTACTS, roles: ['ADMIN', 'AGENT'] },
-    { icon: Building, label: 'Properties', id: NavigationTab.PROPERTIES, roles: ['ADMIN', 'AGENT'] },
-    { icon: FolderOpen, label: 'Documents', id: NavigationTab.DOCUMENTS, roles: ['ADMIN', 'AGENT'] },
-    { icon: CheckSquare, label: 'Approvals', id: NavigationTab.APPROVALS, roles: ['ADMIN'] },
-    { icon: PieChart, label: 'Analytics', id: NavigationTab.ANALYTICS, roles: ['ADMIN'] },
-    { icon: UserCog, label: 'Users', id: NavigationTab.USERS, roles: ['ADMIN'] },
-    { icon: Settings, label: 'Settings', id: NavigationTab.SETTINGS, roles: ['ADMIN'] },
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', roles: ['ADMIN', 'AGENT'] },
+    { icon: Star, label: 'My Portal', path: '/client-portal', roles: ['CLIENT'] },
+    { icon: ListTodo, label: 'Tasks', path: '/tasks', roles: ['ADMIN', 'AGENT', 'CLIENT'] },
+    { icon: Calendar, label: 'Calendar', path: '/calendar', roles: ['ADMIN', 'AGENT', 'CLIENT'] },
+    { icon: Users, label: 'Leads', path: '/leads', roles: ['ADMIN', 'AGENT'] },
+    { icon: Briefcase, label: 'Deals', path: '/deals', roles: ['ADMIN', 'AGENT'] },
+    { icon: Contact, label: 'Contacts', path: '/contacts', roles: ['ADMIN', 'AGENT'] },
+    { icon: Building, label: 'Properties', path: '/properties', roles: ['ADMIN', 'AGENT'] },
+    { icon: FolderOpen, label: 'Documents', path: '/documents', roles: ['ADMIN', 'AGENT'] },
+    { icon: CheckSquare, label: 'Approvals', path: '/approvals', roles: ['ADMIN'] },
+    { icon: Palette, label: 'Templates', path: '/templates', roles: ['ADMIN'] },
+    { icon: PieChart, label: 'Analytics', path: '/analytics', roles: ['ADMIN'] },
+    { icon: UserCog, label: 'Users', path: '/users', roles: ['ADMIN'] },
+    { icon: Settings, label: 'Settings', path: '/settings', roles: ['ADMIN'] },
   ];
 
   // Filter based on user role
@@ -59,17 +61,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onNavigate, isOpen,
         </svg>
         <div className="flex flex-col">
             <span className="text-lg font-bold tracking-tight truncate leading-none">{companyName}</span>
-            <span className="text-[10px] text-muted-foreground font-medium">Powered by Lexonit</span>
+            <a href="https://lexonit.com" target="_blank" rel="noopener noreferrer" className="text-[10px] text-muted-foreground font-medium hover:text-primary transition-colors">Powered by Lexonit</a>
         </div>
       </div>
       <div className="space-y-1 p-4">
-        {menuItems.map((item) => (
+        {menuItems.map((item, index) => (
           <button
-            key={item.id}
-            onClick={() => onNavigate(item.id)}
+            key={index}
+            onClick={() => navigate(item.path)}
             className={cn(
               "flex w-full items-center rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
-              activeTab === item.id 
+              location.pathname === item.path 
                 ? 'bg-primary/10 text-primary' 
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground'
             )}

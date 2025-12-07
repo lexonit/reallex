@@ -1,0 +1,1 @@
+export { ClassicProfessionalTemplate } from './ClassicProfessionalTemplate';

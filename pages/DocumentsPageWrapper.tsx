@@ -1,5 +1,5 @@
 import React from 'react';
-import { DocumentsPage } from '../components/DocumentsPage';
+import { DocumentsPage } from '../containers/DocumentsPage';
 import { CurrentUser } from '../types';
 
 interface DocumentsPageWrapperProps {

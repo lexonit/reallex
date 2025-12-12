@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dashboard } from '../components/Dashboard';
+import { Dashboard } from '../containers/Dashboard';
 import { CurrentUser, NavigationTab } from '../types';
 
 interface DashboardPageProps {

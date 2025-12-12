@@ -1,61 +1,70 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, useNavigate } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
-import { CurrentUser, NavigationTab, UserRole } from './types';
+import { NavigationTab } from './types';
 import { Bell, Search, Menu, Moon, Sun, Settings, LogOut } from 'lucide-react';
 import { Button } from './components/Button';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Avatar } from './components/ui/Avatar';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AppRoutes } from './routes/AppRoutes';
+import { QueryClientProvider } from './lib/queryClient';
+import { useAppDispatch, useAppSelector } from './store';
+import { checkAuth, logout } from './store/slices/authSlice';
+import { NotificationPanel } from './components/ui/NotificationPanel';
 
 const AppContent: React.FC = () => {
-  const [authView, setAuthView] = useState<'LOGIN' | 'REGISTER' | 'APP'>('APP'); 
-  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const dispatch = useAppDispatch();
+  const { user: currentUser, isCheckingAuth } = useAppSelector((state) => state.auth);
+  
+  const [authView, setAuthView] = useState<'LOGIN' | 'REGISTER' | 'APP'>('LOGIN'); 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Check for existing token and validate on mount
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  // Update auth view and redirect when user state changes
+  useEffect(() => {
+    if (!isCheckingAuth) {
+      if (currentUser) {
+        setAuthView('APP');
+        // Only redirect if user is on auth pages - preserve current page on app pages
+        const currentPath = window.location.pathname;
+        if (currentPath === '/login' || currentPath === '/register' || currentPath === '/') {
+          const targetRoute = currentUser.role === 'CLIENT' ? '/client-portal' : '/dashboard';
+          navigate(targetRoute, { replace: true });
+        }
+        // If user is on an app page, keep them there (no redirect)
+      } else {
+        setAuthView('LOGIN');
+        // Redirect to login if not on public routes
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/login' && currentPath !== '/register' && currentPath !== '/' && !currentPath.startsWith('/accept-invite')) {
+          navigate('/login', { replace: true });
+        }
+      }
+    }
+  }, [currentUser, isCheckingAuth, navigate]);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
     document.documentElement.classList.toggle('dark');
   };
 
-  const handleLogin = (role: UserRole) => {
-    if (role === 'ADMIN') {
-      setCurrentUser({
-        id: 'admin-1',
-        name: 'John Doe',
-        email: 'admin@prestige.com',
-        role: 'ADMIN'
-      });
-      navigate('/dashboard');
-    } else if (role === 'AGENT') {
-      setCurrentUser({
-        id: 'agent-1',
-        name: 'Sarah Connor',
-        email: 'sarah@prestige.com',
-        role: 'AGENT',
-        avatar: undefined
-      });
-      navigate('/dashboard');
-    } else if (role === 'CLIENT') {
-      setCurrentUser({
-        id: 'client-1',
-        name: 'Alex Client',
-        email: 'alex@client.com',
-        role: 'CLIENT',
-        avatar: undefined
-      });
-      navigate('/client-portal');
-    }
+  const handleLogin = (auth: { token: string; user: any }) => {
     setAuthView('APP');
+    const targetRoute = auth.user.role === 'CLIENT' ? '/client-portal' : '/dashboard';
+    navigate(targetRoute);
   };
 
   const handleLogout = () => {
-    setCurrentUser(null);
+    dispatch(logout());
     setAuthView('LOGIN');
     navigate('/login');
   };
@@ -84,6 +93,18 @@ const AppContent: React.FC = () => {
       navigate(route);
     }
   };
+
+  // Show loading spinner while checking auth
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // If user is not logged in, show auth/landing routes
   if (!currentUser) {
@@ -131,10 +152,7 @@ const AppContent: React.FC = () => {
             <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-            </Button>
+            <NotificationPanel userId={currentUser?.id} vendorId={currentUser?.vendorId} />
             
             {/* User Profile Dropdown */}
             <div className="relative ml-4 border-l pl-4">
@@ -232,11 +250,13 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </ThemeProvider>
+    <QueryClientProvider>
+      <ThemeProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 

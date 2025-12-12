@@ -1,20 +1,23 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 import Vendor from '../models/Vendor';
 import User, { UserRole } from '../models/User';
 import Property, { PropertyStatus } from '../models/Property';
 import AuditLog from '../models/AuditLog';
+import { Plan } from '../models/Plan';
+import SubscriptionPlan from '../models/SubscriptionPlan';
+import { seedSubscriptionPlans } from './subscriptionPlans';
 
 // Configuration
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ultrareal_crm';
-
-// Mock Hash (In real app, use bcrypt.hashSync('password', 10))
-const MOCK_HASH = '$2a$10$X7V.7/8.9.10.11.12.13.14.15'; // "password"
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://lexonitservices_db_user:rK8FdwQHpTadfXlg@reallex.q5nxaar.mongodb.net/';
 
 const seed = async () => {
   console.log('🌱 Starting Database Seed...');
   
   try {
-    await mongoose.connect(MONGODB_URI);
+    await mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 10000,
+    });
     console.log('✅ Connected to MongoDB');
 
     // 1. Clean Database
@@ -22,14 +25,120 @@ const seed = async () => {
       Vendor.deleteMany({}),
       User.deleteMany({}),
       Property.deleteMany({}),
-      AuditLog.deleteMany({})
+      AuditLog.deleteMany({}),
+      Plan.deleteMany({}),
+      SubscriptionPlan.deleteMany({})
     ]);
     console.log('🧹 Database cleared');
 
-    // 2. Create Super Admin (System Owner)
+    // 1.5 Seed Subscription Plans
+    await seedSubscriptionPlans();
+
+    // 2. Create Subscription Plans
+    const plans = await Plan.insertMany([
+      {
+        name: 'FREE',
+        displayName: 'Starter',
+        description: 'Perfect for individuals and small teams',
+        monthlyPrice: 0,
+        yearlyPrice: 0,
+        features: [
+          'Up to 5 team members',
+          'Up to 10 properties',
+          'Basic reporting',
+          'Email support'
+        ],
+        maxUsers: 5,
+        maxProperties: 10,
+        maxTemplates: 1,
+        supportLevel: 'EMAIL',
+        isActive: true
+      },
+      {
+        name: 'STARTER',
+        displayName: 'Professional',
+        description: 'For growing real estate teams',
+        monthlyPrice: 99,
+        yearlyPrice: 990,
+        features: [
+          'Up to 15 team members',
+          'Up to 50 properties',
+          'Advanced reporting',
+          'Custom templates',
+          'Priority email support',
+          'API access'
+        ],
+        maxUsers: 15,
+        maxProperties: 50,
+        maxTemplates: 5,
+        supportLevel: 'PRIORITY',
+        isActive: true
+      },
+      {
+        name: 'PROFESSIONAL',
+        displayName: 'Enterprise',
+        description: 'For large real estate companies',
+        monthlyPrice: 299,
+        yearlyPrice: 2990,
+        features: [
+          'Up to 50 team members',
+          'Unlimited properties',
+          'Custom branding',
+          'White label solutions',
+          'Custom templates',
+          'Priority support',
+          'Advanced API',
+          'Custom integrations',
+          'Dedicated account manager'
+        ],
+        maxUsers: 50,
+        maxProperties: 1000,
+        maxTemplates: 20,
+        supportLevel: 'DEDICATED',
+        isActive: true
+      },
+      {
+        name: 'ENTERPRISE',
+        displayName: 'Custom',
+        description: 'Customized solutions for large enterprises',
+        monthlyPrice: 999,
+        yearlyPrice: 9990,
+        features: [
+          'Unlimited team members',
+          'Unlimited properties',
+          'Full white label',
+          'Custom development',
+          'Dedicated infrastructure',
+          '24/7 phone support',
+          'Custom integrations',
+          'On-premise deployment option'
+        ],
+        maxUsers: 999,
+        maxProperties: 99999,
+        maxTemplates: 999,
+        supportLevel: 'DEDICATED',
+        isActive: true
+      }
+    ]);
+    console.log('💳 4 Subscription plans created');
+
+    // 2. Create Demo Admin User
+    const demoAdminHash = await bcrypt.hash('admin@123', 10);
+    const demoAdmin = await User.create({
+      email: 'admin@demo.com',
+      passwordHash: demoAdminHash,
+      firstName: 'Demo',
+      lastName: 'Admin',
+      role: UserRole.SUPER_ADMIN,
+      isActive: true
+    });
+    console.log('👤 Demo Admin (admin@demo.com / admin@123) created');
+
+    // 3. Create Super Admin (System Owner)
+    const defaultHash = await bcrypt.hash('password', 10);
     const superAdmin = await User.create({
       email: 'admin@ultrareal.com',
-      passwordHash: MOCK_HASH,
+      passwordHash: defaultHash,
       firstName: 'System',
       lastName: 'Admin',
       role: UserRole.SUPER_ADMIN,
@@ -37,7 +146,7 @@ const seed = async () => {
     });
     console.log('👤 Super Admin created');
 
-    // 3. Create Vendor (Tenant)
+    // 4. Create Vendor (Tenant)
     const vendor = await Vendor.create({
       name: 'Prestige Estates',
       slug: 'prestige',
@@ -47,10 +156,10 @@ const seed = async () => {
     });
     console.log(`🏢 Vendor "${vendor.name}" created`);
 
-    // 4. Create Vendor Users
+    // 5. Create Vendor Users
     const vendorAdmin = await User.create({
       email: 'admin@prestige.com',
-      passwordHash: MOCK_HASH,
+      passwordHash: defaultHash,
       firstName: 'Sarah',
       lastName: 'Connor',
       role: UserRole.VENDOR_ADMIN,
@@ -59,7 +168,7 @@ const seed = async () => {
 
     const manager = await User.create({
       email: 'manager@prestige.com',
-      passwordHash: MOCK_HASH,
+      passwordHash: defaultHash,
       firstName: 'John',
       lastName: 'Doe',
       role: UserRole.MANAGER,
@@ -68,7 +177,7 @@ const seed = async () => {
 
     const salesRep = await User.create({
       email: 'agent@prestige.com',
-      passwordHash: MOCK_HASH,
+      passwordHash: defaultHash,
       firstName: 'Emily',
       lastName: 'Rose',
       role: UserRole.SALES_REP,
@@ -76,7 +185,7 @@ const seed = async () => {
     });
     console.log('👥 Vendor users created');
 
-    // 5. Create Properties
+    // 6. Create Properties
     const propertiesData = [
       {
         address: '123 Beverly Park Dr, Beverly Hills, CA',
@@ -127,7 +236,7 @@ const seed = async () => {
     })));
     console.log(`🏠 ${propertiesData.length} Properties created`);
 
-    // 6. Create Audit Log Entry
+    // 7. Create Audit Log Entry
     await AuditLog.create({
       userId: vendorAdmin._id,
       action: 'SYSTEM_INIT',

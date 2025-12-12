@@ -1,5 +1,5 @@
 import React from 'react';
-import { RegisterPage } from '../components/auth/RegisterPage';
+import { RegisterPage } from '../containers/auth/RegisterPage';
 
 interface RegisterPageWrapperProps {
   onBack: () => void;

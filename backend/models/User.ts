@@ -16,6 +16,9 @@ export interface IUser extends Document {
   vendorId?: mongoose.Types.ObjectId; // Null for SuperAdmin
   isActive: boolean;
   lastLogin?: Date;
+  inviteToken?: string;
+  inviteExpires?: Date;
+  invitedBy?: mongoose.Types.ObjectId;
 }
 
 const UserSchema: Schema = new Schema({
@@ -30,7 +33,10 @@ const UserSchema: Schema = new Schema({
   },
   vendorId: { type: Schema.Types.ObjectId, ref: 'Vendor', index: true }, 
   isActive: { type: Boolean, default: true },
-  lastLogin: { type: Date }
+  lastLogin: { type: Date },
+  inviteToken: { type: String, index: true },
+  inviteExpires: { type: Date },
+  invitedBy: { type: Schema.Types.ObjectId, ref: 'User' }
 }, {
   timestamps: true
 });

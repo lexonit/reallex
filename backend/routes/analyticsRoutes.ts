@@ -2,7 +2,7 @@ import express from 'express';
 import { getDashboardStats, getPropertyTimeSeries, getAuditLogs, exportAuditLogs } from '../controllers/analyticsController';
 import { authenticate } from '../middleware/auth';
 import { resolveTenant } from '../middleware/tenant';
-import { authorize } from '../middleware/rbac';
+import { authorize } from '../rbac';
 import { UserRole } from '../models/User';
 
 const router = express.Router();

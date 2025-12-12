@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Property, CurrentUser } from '../types';
+import { Property, CurrentUser, PropertyType } from '../types';
 import { Button } from './Button';
 import { LayoutGrid, List as ListIcon, Plus, Search, Filter, Map } from 'lucide-react';
 import { PropertyCard, PropertyCardSkeleton } from './properties/PropertyCard';
@@ -10,7 +10,7 @@ import { PropertyDetail } from './properties/PropertyDetail';
 import { Toast } from './ui/Toast';
 import { Card } from './Card';
 import { AnimatePresence, motion } from 'framer-motion';
-import { graphqlRequest } from '../lib/graphql';
+import { useProperties, useCreateProperty, useUpdateProperty } from '../hooks/useProperties';
 
 type ViewMode = 'GRID' | 'LIST' | 'MAP' | 'CREATE' | 'EDIT' | 'DETAIL';
 
@@ -21,54 +21,78 @@ interface PropertiesProps {
 export const Properties: React.FC<PropertiesProps> = ({ user }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('GRID');
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
-  const [properties, setProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const isAgent = user?.role === 'AGENT';
+  
+  // Use hooks for data fetching and mutations
+  const { data: propertiesData, loading: isLoading, refetch } = useProperties(undefined, user?.id);
+  const { mutate: createProperty } = useCreateProperty();
+  const { mutate: updateProperty } = useUpdateProperty();
 
   // Filter & Search
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
-  const fetchProperties = async () => {
-    setIsLoading(true);
-    const query = `
-      query GetProperties {
-        properties {
-          id
-          address
-          price
-          status
-          beds
-          baths
-          sqft
-          type
-          image
-          agent
-        }
-      }
-    `;
-    try {
-      const data = await graphqlRequest(query);
-      let fetchedProps = data.properties;
-      if (isAgent) {
-        fetchedProps = fetchedProps.filter((p: Property) => p.agent === user?.name);
-      }
-      setProperties(fetchedProps);
-      setFilteredProperties(fetchedProps);
-    } catch (err) {
-      console.error(err);
-      setToast({ message: 'Failed to load properties', type: 'error' });
-    } finally {
-      setIsLoading(false);
-    }
+  // Map backend enum to UI status
+  const toUiStatus = (backendStatus: string): string => {
+    const map: Record<string, string> = {
+      'DRAFT': 'Draft',
+      'PENDING': 'Pending',
+      'PUBLISHED': 'Active',
+      'SOLD': 'Sold',
+      'ARCHIVED': 'Archived'
+    };
+    return map[backendStatus] || 'Draft';
   };
 
-  useEffect(() => {
-    fetchProperties();
-  }, [user, isAgent]);
+  // Map UI status to backend enum
+  const toApiStatus = (uiStatus: string): string => {
+    const map: Record<string, string> = {
+      'Draft': 'DRAFT',
+      'Pending': 'PENDING',
+      'Active': 'PUBLISHED',
+      'Sold': 'SOLD',
+      'Archived': 'ARCHIVED'
+    };
+    return map[uiStatus] || 'DRAFT';
+  };
+
+  // Transform properties data from API
+  const properties = React.useMemo(() => {
+    if (!propertiesData?.properties) return [];
+    
+    let fetchedProps = propertiesData.properties.map((p: any) => ({
+      id: p._id,
+      address: p.address,
+      price: p.price,
+      beds: p.specs?.beds || 0,
+      baths: p.specs?.baths || 0,
+      sqft: p.specs?.sqft || 0,
+      status: toUiStatus(p.status),
+      description: p.description || '',
+      images: p.images || [],
+      image: p.images?.[0] || '',
+      agent: user?.name || '',
+      type: 'Single Family' as PropertyType,
+      yearBuilt: new Date().getFullYear(),
+      lotSize: 0,
+      garage: 0,
+      amenities: [],
+      documents: [],
+      openHouses: [],
+      location: { lat: 0, lng: 0 }
+    }));
+    
+    if (isAgent && user?.id) {
+      // Filter by assignedAgentId if user is an agent
+      const rawProps = propertiesData.properties;
+      fetchedProps = fetchedProps.filter((_: any, idx: number) => rawProps[idx].assignedAgentId === user.id);
+    }
+    
+    return fetchedProps;
+  }, [propertiesData, user, isAgent]);
 
   useEffect(() => {
     let result = properties;
@@ -89,28 +113,24 @@ export const Properties: React.FC<PropertiesProps> = ({ user }) => {
   }, [properties, searchQuery, statusFilter]);
 
   const handleCreateSubmit = async (data: Partial<Property>) => {
-    const mutation = `
-      mutation CreateProperty($address: String!, $price: Float!, $type: String) {
-        createProperty(address: $address, price: $price, type: $type) {
-          id
-          address
-          price
-          status
-          type
-          image
-        }
-      }
-    `;
-    
     try {
-        const result = await graphqlRequest(mutation, {
-            address: data.address,
-            price: data.price,
-            type: data.type
+        await createProperty({
+            input: {
+                address: data.address,
+                price: data.price,
+                specs: {
+                    beds: data.beds || 0,
+                    baths: data.baths || 0,
+                    sqft: data.sqft || 0
+                },
+                status: toApiStatus(data.status || 'Draft'),
+                description: data.description || '',
+                images: data.images || []
+            }
         });
         
-        const newProperty = { ...result.createProperty, images: [], agent: user?.name };
-        setProperties([newProperty, ...properties]);
+        // Refetch properties to get updated list
+        await refetch();
         
         setToast({ message: 'Property created successfully', type: 'success' });
         setViewMode('GRID');
@@ -119,16 +139,36 @@ export const Properties: React.FC<PropertiesProps> = ({ user }) => {
     }
   };
 
-  const handleUpdateSubmit = (data: Partial<Property>) => {
+  const handleUpdateSubmit = async (data: Partial<Property>) => {
     if (!selectedPropertyId) return;
 
-    setProperties(prev => prev.map(p => 
-      p.id === selectedPropertyId ? { ...p, ...data } as Property : p
-    ));
-    
-    setToast({ message: 'Property updated successfully', type: 'success' });
-    setTimeout(() => setToast(null), 3000);
-    setViewMode('DETAIL');
+    try {
+      await updateProperty({
+        id: selectedPropertyId,
+        input: {
+          address: data.address,
+          price: data.price,
+          specs: {
+            beds: data.beds,
+            baths: data.baths,
+            sqft: data.sqft
+          },
+          status: data.status ? toApiStatus(data.status) : undefined,
+          description: data.description,
+          images: data.images
+        }
+      });
+
+      // Refetch properties to get updated list
+      await refetch();
+      
+      setToast({ message: 'Property updated successfully', type: 'success' });
+      setTimeout(() => setToast(null), 3000);
+      setViewMode('DETAIL');
+    } catch (err) {
+      setToast({ message: 'Failed to update property', type: 'error' });
+      setTimeout(() => setToast(null), 3000);
+    }
   };
 
   const handleViewDetails = (id: string) => {

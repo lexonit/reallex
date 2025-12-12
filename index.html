@@ -9,6 +9,14 @@
       tailwind.config = {
         darkMode: 'class',
         theme: {
+          screens: {
+            'xs': '480px',
+            'sm': '640px',
+            'md': '768px',
+            'lg': '1024px',
+            'xl': '1280px',
+            '2xl': '1536px',
+          },
           extend: {
             colors: {
               background: 'var(--background)',
@@ -66,77 +74,105 @@
     </script>
     <style>
       :root {
-        /* Pastel Theme (OKLCH) */
-        --background: oklch(100% 0 0);          /* base-100 */
-        --foreground: oklch(20% 0 0);           /* base-content */
+        /* Enhanced Light Theme with Better Contrast */
+        --background: oklch(100% 0 0);          /* Pure white */
+        --foreground: oklch(15% 0 0);           /* Near black for text */
 
-        --card: oklch(98.462% 0.001 247.838);   /* base-200 */
-        --card-foreground: oklch(20% 0 0);      /* base-content */
+        --card: oklch(98% 0.002 247.838);       /* Very light gray */
+        --card-foreground: oklch(15% 0 0);      /* Near black */
 
-        --popover: oklch(100% 0 0);             /* base-100 */
-        --popover-foreground: oklch(20% 0 0);   /* base-content */
+        --popover: oklch(100% 0 0);             /* Pure white */
+        --popover-foreground: oklch(15% 0 0);   /* Near black */
 
-        --primary: oklch(90% 0.063 306.703);    /* primary */
-        --primary-foreground: oklch(49% 0.265 301.924); /* primary-content */
+        --primary: oklch(55% 0.15 270);         /* Vibrant purple - will be overridden by theme */
+        --primary-foreground: oklch(98% 0 0);   /* White text */
 
-        --secondary: oklch(89% 0.058 10.001);   /* secondary */
-        --secondary-foreground: oklch(51% 0.222 16.935); /* secondary-content */
+        --secondary: oklch(96% 0.015 250);      /* Light blue-gray */
+        --secondary-foreground: oklch(25% 0.02 250); /* Dark blue-gray */
 
-        --muted: oklch(92.462% 0.001 247.838);  /* base-300 */
-        --muted-foreground: oklch(55% 0.046 257.417); /* neutral */
+        --muted: oklch(95% 0.01 250);           /* Very light muted */
+        --muted-foreground: oklch(45% 0.02 250); /* Medium gray */
 
-        --accent: oklch(90% 0.093 164.15);      /* accent */
-        --accent-foreground: oklch(50% 0.118 165.612); /* accent-content */
+        --accent: oklch(92% 0.02 250);          /* Light accent */
+        --accent-foreground: oklch(25% 0.02 250); /* Dark accent text */
 
-        --destructive: oklch(80% 0.114 19.571); /* error */
-        --destructive-foreground: oklch(50% 0.213 27.518); /* error-content */
+        --destructive: oklch(62% 0.18 30);      /* Red for errors */
+        --destructive-foreground: oklch(98% 0 0); /* White text */
 
-        --border: oklch(92.462% 0.001 247.838); /* base-300 */
-        --input: oklch(92.462% 0.001 247.838);  /* base-300 */
-        --ring: oklch(90% 0.063 306.703);       /* primary */
+        --border: oklch(90% 0.01 250);          /* Light border */
+        --input: oklch(95% 0.01 250);           /* Input background */
+        --ring: oklch(55% 0.15 270);            /* Focus ring - matches primary */
 
-        --radius: 1rem;                         /* radius-selector/box */
+        --radius: 0.75rem;                      /* Rounded corners */
+        
+        /* Custom enhanced variables */
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
       }
       
       .dark {
-        /* Adjusted Dark Mode for Pastel Compatibility */
-        --background: oklch(12% 0.042 264.695);
-        --foreground: oklch(98% 0.001 247.838);
+        /* Enhanced Dark Mode with Better Contrast */
+        --background: oklch(8% 0.01 250);       /* Very dark blue-black */
+        --foreground: oklch(95% 0.01 250);      /* Very light text */
         
-        --card: oklch(16% 0.042 264.695);
-        --card-foreground: oklch(98% 0.001 247.838);
+        --card: oklch(12% 0.015 250);           /* Dark card background */
+        --card-foreground: oklch(95% 0.01 250); /* Light card text */
         
-        --popover: oklch(16% 0.042 264.695);
-        --popover-foreground: oklch(98% 0.001 247.838);
+        --popover: oklch(10% 0.015 250);        /* Dark popover */
+        --popover-foreground: oklch(95% 0.01 250); /* Light popover text */
         
-        --primary: oklch(70% 0.15 306.703);     /* Darker version of pastel primary */
-        --primary-foreground: oklch(100% 0 0);
+        --primary: oklch(65% 0.18 270);         /* Brighter purple for dark mode */
+        --primary-foreground: oklch(10% 0.01 250); /* Dark text for contrast */
         
-        --secondary: oklch(25% 0.058 10.001);
-        --secondary-foreground: oklch(90% 0 0);
+        --secondary: oklch(18% 0.02 250);       /* Dark secondary */
+        --secondary-foreground: oklch(85% 0.01 250); /* Light secondary text */
         
-        --muted: oklch(20% 0.02 260);
-        --muted-foreground: oklch(70% 0.02 260);
+        --muted: oklch(15% 0.02 250);           /* Dark muted */
+        --muted-foreground: oklch(65% 0.02 250); /* Lighter muted text */
         
-        --accent: oklch(25% 0.093 164.15);
-        --accent-foreground: oklch(90% 0 0);
+        --accent: oklch(20% 0.02 250);          /* Dark accent */
+        --accent-foreground: oklch(85% 0.01 250); /* Light accent text */
         
-        --destructive: oklch(40% 0.15 20);
-        --destructive-foreground: oklch(98% 0 0);
+        --destructive: oklch(55% 0.22 25);      /* Brighter red for dark */
+        --destructive-foreground: oklch(95% 0 0); /* Light text */
         
-        /* Softer border for dark mode */
-        --border: oklch(20% 0.02 260);
-        --input: oklch(20% 0.02 260);
-        --ring: oklch(70% 0.15 306.703);
+        --border: oklch(22% 0.02 250);          /* Dark border */
+        --input: oklch(18% 0.02 250);           /* Dark input */
+        --ring: oklch(65% 0.18 270);            /* Focus ring */
         
-        --radius: 1rem;
+        /* Enhanced dark shadows */
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+      }
+      
+      /* Smooth theme transitions */
+      * {
+        transition-property: background-color, border-color, color, box-shadow;
+        transition-duration: 200ms;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
       }
       
       body {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
       }
+      
       html {
         scroll-behavior: smooth;
+      }
+      
+      /* Enhanced focus styles */
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible,
+      select:focus-visible {
+        outline: 2px solid hsl(var(--ring));
+        outline-offset: 2px;
       }
     </style>
   <script type="importmap">

@@ -24,3 +24,4 @@ export { SettingsPageWrapper } from './SettingsPageWrapper';
 export { LoginPageWrapper } from './LoginPageWrapper';
 export { RegisterPageWrapper } from './RegisterPageWrapper';
 export { LandingPageWrapper } from './LandingPageWrapper';
+export { AcceptInvitePage } from './AcceptInvitePage';

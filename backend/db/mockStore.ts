@@ -1,12 +1,26 @@
 
 
-import { Lead, Property, Deal, DealStage, PipelineStage } from '../../types';
 
-// Initial Mock Data (Simulating a populated DB)
+
+/**
+ * ⚠️ LEGACY MOCK DATA - KEPT FOR REFERENCE ONLY
+ * 
+ * This file contains the original mock data structure.
+ * The application now uses real MongoDB data via dbStore.ts
+ * 
+ * This file is kept for:
+ * - Reference of data structure
+ * - Testing purposes
+ * - Fallback if needed
+ * 
+ * Active implementation: backend/db/dbStore.ts
+ */
+
+import { Lead, Property, Deal, DealStage, PipelineStage } from '../../types';// Initial Mock Data (Simulating a populated DB)
 let leads: any[] = [
   { 
     id: '1', 
-    name: 'Alice Johnson', 
+    name: 'Alice', 
     email: 'alice@example.com', 
     mobile: '+1 (555) 123-4567', 
     status: 'New Lead', 

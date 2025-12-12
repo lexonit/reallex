@@ -1,5 +1,5 @@
 import React from 'react';
-import { ApprovalsQueue } from '../components/admin/ApprovalsQueue';
+import { ApprovalsQueue } from '../containers/admin/ApprovalsQueue';
 
 export const ApprovalsPage: React.FC = () => {
   return <ApprovalsQueue />;

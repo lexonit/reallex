@@ -23,12 +23,23 @@ export interface IProperty extends Document {
     sqft: number;
     lotSize?: number;
   };
+  yearBuilt?: number;
+  garage?: number;
+  taxes?: number;
+  hoaFees?: number;
+  amenities?: string[];
+  documents?: string[];
   status: PropertyStatus;
   images: string[];
   location: {
     type: 'Point';
     coordinates: number[]; // [longitude, latitude]
   };
+  // Approval tracking
+  approvalStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
+  approvedBy?: mongoose.Types.ObjectId;
+  approvalDate?: Date;
+  rejectionReason?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,6 +56,12 @@ const PropertySchema: Schema = new Schema({
     sqft: { type: Number, required: true },
     lotSize: { type: Number }
   },
+  yearBuilt: { type: Number },
+  garage: { type: Number },
+  taxes: { type: Number },
+  hoaFees: { type: Number },
+  amenities: [{ type: String }],
+  documents: [{ type: String }],
   status: { 
     type: String, 
     enum: Object.values(PropertyStatus), 
@@ -55,7 +72,17 @@ const PropertySchema: Schema = new Schema({
   location: {
     type: { type: String, enum: ['Point'], default: 'Point' },
     coordinates: { type: [Number], required: true }
-  }
+  },
+  // Approval tracking
+  approvalStatus: {
+    type: String,
+    enum: ['PENDING', 'APPROVED', 'REJECTED'],
+    default: 'PENDING',
+    index: true
+  },
+  approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  approvalDate: { type: Date },
+  rejectionReason: { type: String }
 }, {
   timestamps: true
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { AnalyticsDashboard } from '../components/AnalyticsDashboard';
+import { AnalyticsDashboard } from '../containers/AnalyticsDashboard';
 
 export const AnalyticsPage: React.FC = () => {
   return <AnalyticsDashboard />;

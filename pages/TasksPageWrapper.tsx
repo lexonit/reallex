@@ -1,5 +1,5 @@
 import React from 'react';
-import { TasksPage } from '../components/TasksPage';
+import { TasksPage } from '../containers/TasksPage';
 import { CurrentUser } from '../types';
 
 interface TasksPageWrapperProps {

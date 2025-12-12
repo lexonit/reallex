@@ -1,0 +1,1 @@
+export { DealsPage as default, DealsPage } from '../DealsPage';

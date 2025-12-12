@@ -1,5 +1,5 @@
 import React from 'react';
-import { CalendarPage } from '../components/CalendarPage';
+import { CalendarPage } from '../containers/CalendarPage';
 import { CurrentUser } from '../types';
 
 interface CalendarPageWrapperProps {

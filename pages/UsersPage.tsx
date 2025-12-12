@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserManagement } from '../components/admin/UserManagement';
+import { UserManagement } from '../containers/admin/UserManagement';
 
 export const UsersPage: React.FC = () => {
   return <UserManagement />;

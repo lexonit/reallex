@@ -2,6 +2,7 @@
 import express from 'express';
 import { db } from '../db/mockStore';
 import { broadcastNotification } from '../server';
+import { checkSubscriptionLimits } from '../middleware/subscription';
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.get('/leads', async (req: any, res: any) => {
 });
 
 // POST /api/leads
-router.post('/leads', async (req: any, res: any) => {
+router.post('/leads', checkSubscriptionLimits('lead') as any, async (req: any, res: any) => {
   try {
     const lead = await db.leads.create(req.body);
     
@@ -322,7 +323,7 @@ router.get('/deals', async (req: any, res: any) => {
 });
 
 // POST /api/deals
-router.post('/deals', async (req: any, res: any) => {
+router.post('/deals', checkSubscriptionLimits('deal') as any, async (req: any, res: any) => {
   try {
     const deal = await db.deals.create(req.body);
     broadcastNotification({

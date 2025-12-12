@@ -1,5 +1,5 @@
 import React from 'react';
-import { LeadList } from '../components/LeadList';
+import { LeadList } from '../containers/LeadList';
 import { CurrentUser } from '../types';
 
 interface LeadsPageProps {

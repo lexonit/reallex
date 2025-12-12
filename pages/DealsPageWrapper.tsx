@@ -1,5 +1,5 @@
 import React from 'react';
-import { DealsPage } from '../components/DealsPage';
+import { DealsPage } from '../containers/deals/DealsPage';
 import { CurrentUser } from '../types';
 
 interface DealsPageWrapperProps {

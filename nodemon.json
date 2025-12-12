@@ -1,0 +1,11 @@
+{
+  "watch": ["backend"],
+  "ext": "ts,js,json",
+  "ignore": ["backend/**/*.test.ts", "backend/dist"],
+  "exec": "tsx backend/server.ts",
+  "env": {
+    "NODE_ENV": "development",
+    "PORT": "5000"
+  },
+  "delay": 1000
+}

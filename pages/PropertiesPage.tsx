@@ -1,5 +1,5 @@
 import React from 'react';
-import { Properties } from '../components/Properties';
+import { Properties } from '../containers/properties/Properties';
 import { CurrentUser } from '../types';
 
 interface PropertiesPageProps {

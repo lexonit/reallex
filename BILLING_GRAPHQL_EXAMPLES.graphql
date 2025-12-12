@@ -1,0 +1,485 @@
+"""
+Billing API - GraphQL Query Examples
+
+Copy and paste these into your GraphQL client (Apollo, Insomnia, etc.)
+to test the billing API endpoints.
+"""
+
+# ============================================
+# QUERY: Get All Available Plans
+# ============================================
+# Public endpoint - no authentication required
+# Use this to display plan options to users
+query GetPlans {
+  getPlans {
+    id
+    name
+    displayName
+    description
+    monthlyPrice
+    yearlyPrice
+    features
+    maxUsers
+    maxProperties
+    maxTemplates
+    supportLevel
+  }
+}
+
+
+# ============================================
+# QUERY: Get Current Subscription
+# ============================================
+# Requires authentication
+# Use this to display current subscription status
+query GetCurrentSubscription {
+  getSubscription {
+    id
+    plan
+    status
+    amount
+    billingCycle
+    currentPeriodStart
+    currentPeriodEnd
+    autoRenew
+    cancelledAt
+  }
+}
+
+
+# ============================================
+# QUERY: Get Payment Methods
+# ============================================
+# Requires authentication
+# Lists all active payment methods for the vendor
+query GetPaymentMethods {
+  getPaymentMethods {
+    id
+    type
+    cardLast4
+    cardBrand
+    expiryMonth
+    expiryYear
+    isDefault
+    createdAt
+  }
+}
+
+
+# ============================================
+# QUERY: Get Invoices
+# ============================================
+# Requires authentication
+# Get paginated list of invoices
+query GetInvoices {
+  getInvoices(limit: 10, offset: 0) {
+    id
+    invoiceNumber
+    amount
+    currency
+    status
+    billDate
+    dueDate
+    paidDate
+    description
+    total
+    pdfUrl
+  }
+}
+
+
+# ============================================
+# QUERY: Get Detailed Invoice
+# ============================================
+# Requires authentication
+# Get invoice with line items
+query GetInvoiceDetails {
+  getInvoices(limit: 1, offset: 0) {
+    id
+    invoiceNumber
+    amount
+    status
+    billDate
+    dueDate
+    lineItems {
+      description
+      quantity
+      unitPrice
+      amount
+    }
+    subtotal
+    tax
+    total
+  }
+}
+
+
+# ============================================
+# MUTATION: Add Payment Method
+# ============================================
+# Requires authentication
+# Adds a new credit card for subscription payments
+mutation AddPaymentMethod {
+  addPaymentMethod(input: {
+    type: CREDIT_CARD
+    cardLast4: "4242"
+    cardBrand: "Visa"
+    expiryMonth: 12
+    expiryYear: 2025
+    isDefault: true
+  }) {
+    id
+    type
+    cardLast4
+    isDefault
+    createdAt
+  }
+}
+
+
+# ============================================
+# MUTATION: Subscribe to Plan (Monthly)
+# ============================================
+# Requires authentication + payment method
+# Creates a monthly subscription
+mutation SubscribeMonthly {
+  subscribe(input: {
+    plan: PROFESSIONAL
+    billingCycle: MONTHLY
+    paymentMethodId: "payment_method_id_here"
+  }) {
+    id
+    plan
+    status
+    amount
+    billingCycle
+    currentPeriodStart
+    currentPeriodEnd
+    autoRenew
+  }
+}
+
+
+# ============================================
+# MUTATION: Subscribe to Plan (Yearly)
+# ============================================
+# Requires authentication + payment method
+# Creates a yearly subscription (usually with discount)
+mutation SubscribeYearly {
+  subscribe(input: {
+    plan: PROFESSIONAL
+    billingCycle: YEARLY
+    paymentMethodId: "payment_method_id_here"
+  }) {
+    id
+    plan
+    status
+    amount
+    billingCycle
+    currentPeriodStart
+    currentPeriodEnd
+  }
+}
+
+
+# ============================================
+# MUTATION: Upgrade Plan
+# ============================================
+# Requires authentication
+# Changes from current plan to a higher tier
+mutation UpgradePlan {
+  updateSubscription(
+    plan: ENTERPRISE
+    billingCycle: YEARLY
+  ) {
+    id
+    plan
+    amount
+    currentPeriodStart
+    currentPeriodEnd
+  }
+}
+
+
+# ============================================
+# MUTATION: Downgrade Plan
+# ============================================
+# Requires authentication
+# Changes from current plan to a lower tier
+mutation DowngradePlan {
+  updateSubscription(
+    plan: STARTER
+    billingCycle: MONTHLY
+  ) {
+    id
+    plan
+    amount
+  }
+}
+
+
+# ============================================
+# MUTATION: Change Billing Cycle
+# ============================================
+# Requires authentication
+# Switch between monthly and yearly billing
+mutation ChangeBillingCycle {
+  updateSubscription(
+    plan: PROFESSIONAL
+    billingCycle: YEARLY
+  ) {
+    id
+    billingCycle
+    amount
+    currentPeriodEnd
+  }
+}
+
+
+# ============================================
+# MUTATION: Update Payment Method
+# ============================================
+# Requires authentication
+# Update details of existing payment method
+mutation UpdatePaymentMethod {
+  updatePaymentMethod(
+    paymentMethodId: "payment_method_id_here"
+    input: {
+      type: CREDIT_CARD
+      cardLast4: "5678"
+      cardBrand: "Mastercard"
+      expiryMonth: 6
+      expiryYear: 2026
+      isDefault: true
+    }
+  ) {
+    id
+    cardBrand
+    cardLast4
+    isDefault
+  }
+}
+
+
+# ============================================
+# MUTATION: Set Default Payment Method
+# ============================================
+# Requires authentication
+# Mark a payment method as primary
+mutation SetDefaultPayment {
+  updatePaymentMethod(
+    paymentMethodId: "payment_method_id_here"
+    input: {
+      type: CREDIT_CARD
+      cardLast4: "4242"
+      cardBrand: "Visa"
+      isDefault: true
+    }
+  ) {
+    id
+    isDefault
+  }
+}
+
+
+# ============================================
+# MUTATION: Remove Payment Method
+# ============================================
+# Requires authentication
+# Soft-delete a payment method (marks as inactive)
+mutation RemovePaymentMethod {
+  removePaymentMethod(paymentMethodId: "payment_method_id_here")
+}
+
+
+# ============================================
+# MUTATION: Cancel Subscription
+# ============================================
+# Requires authentication
+# Cancels the current subscription
+mutation CancelSubscription {
+  cancelSubscription(reason: "switching providers") {
+    id
+    status
+    cancelledAt
+    autoRenew
+  }
+}
+
+
+# ============================================
+# COMMON WORKFLOW: New Subscription
+# ============================================
+# Step 1: View available plans
+query Step1_GetPlans {
+  getPlans {
+    name
+    displayName
+    monthlyPrice
+    features
+  }
+}
+
+# Step 2: Add payment method
+mutation Step2_AddPayment {
+  addPaymentMethod(input: {
+    type: CREDIT_CARD
+    cardLast4: "4242"
+    cardBrand: "Visa"
+    expiryMonth: 12
+    expiryYear: 2025
+    isDefault: true
+  }) {
+    id
+  }
+}
+
+# Step 3: Subscribe to plan
+mutation Step3_Subscribe {
+  subscribe(input: {
+    plan: PROFESSIONAL
+    billingCycle: YEARLY
+    paymentMethodId: "paste_payment_method_id_from_step_2"
+  }) {
+    id
+    plan
+    status
+    amount
+  }
+}
+
+# Step 4: Verify subscription
+query Step4_VerifySubscription {
+  getSubscription {
+    plan
+    status
+    currentPeriodEnd
+  }
+}
+
+# Step 5: View invoice
+query Step5_GetInvoice {
+  getInvoices(limit: 1) {
+    invoiceNumber
+    amount
+    status
+    billDate
+  }
+}
+
+
+# ============================================
+# COMMON WORKFLOW: Upgrade Subscription
+# ============================================
+# Step 1: View current subscription
+query CurrentSub {
+  getSubscription {
+    plan
+    status
+    billingCycle
+  }
+}
+
+# Step 2: Upgrade plan
+mutation Upgrade {
+  updateSubscription(
+    plan: ENTERPRISE
+    billingCycle: YEARLY
+  ) {
+    id
+    plan
+    amount
+  }
+}
+
+# Step 3: Verify upgrade
+query VerifyUpgrade {
+  getSubscription {
+    plan
+    amount
+    currentPeriodEnd
+  }
+}
+
+
+# ============================================
+# ERROR CASES: Test with Invalid Data
+# ============================================
+
+# Invalid plan (should error)
+mutation InvalidPlan {
+  subscribe(input: {
+    plan: INVALID_PLAN
+    billingCycle: MONTHLY
+  }) {
+    id
+  }
+}
+
+# Invalid payment method (should error)
+mutation InvalidPayment {
+  subscribe(input: {
+    plan: PROFESSIONAL
+    billingCycle: MONTHLY
+    paymentMethodId: "invalid_id"
+  }) {
+    id
+  }
+}
+
+# Update non-existent payment method (should error)
+mutation InvalidUpdate {
+  updatePaymentMethod(
+    paymentMethodId: "non_existent_id"
+    input: {
+      type: CREDIT_CARD
+      cardLast4: "0000"
+      cardBrand: "Visa"
+    }
+  ) {
+    id
+  }
+}
+
+
+# ============================================
+# FILTERING EXAMPLES
+# ============================================
+
+# Get only the first 5 invoices
+query First5Invoices {
+  getInvoices(limit: 5, offset: 0) {
+    invoiceNumber
+    amount
+  }
+}
+
+# Get invoices from page 2 (10-20)
+query SecondPage {
+  getInvoices(limit: 10, offset: 10) {
+    invoiceNumber
+    amount
+  }
+}
+
+# Get all payment methods
+query AllPayments {
+  getPaymentMethods {
+    id
+    type
+    isDefault
+  }
+}
+
+# Get only default payment method info in subscription view
+query SubWithDefault {
+  getSubscription {
+    plan
+    paymentMethodId
+  }
+  getPaymentMethods {
+    id
+    isDefault
+    cardLast4
+  }
+}

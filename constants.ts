@@ -1,7 +1,7 @@
 import { Lead, ChartData, Property, ClosedDeal, Agent, Integration, PipelineStage } from './types';
 
 export const MOCK_LEADS: Lead[] = [
-  { id: '1', name: 'Alice Johnson', email: 'alice@example.com', mobile: '+1 (555) 123-4567', status: 'New Lead', value: 450000, lastContact: '2023-10-25', source: 'Website', assignedAgent: 'Unassigned', tags: ['First-time Buyer', 'Urgent'] },
+  { id: '1', name: 'Alice ', email: 'alice@example.com', mobile: '+1 (555) 123-4567', status: 'New Lead', value: 450000, lastContact: '2023-10-25', source: 'Website', assignedAgent: 'Unassigned', tags: ['First-time Buyer', 'Urgent'] },
   { id: '2', name: 'Bob Smith', email: 'bob.smith@corp.com', mobile: '+1 (555) 234-5678', status: 'Contacted', value: 1200000, lastContact: '2023-10-24', source: 'Referral', assignedAgent: 'Sarah Connor', tags: ['Cash Buyer', 'Investor'] },
   { id: '3', name: 'Charlie Brown', email: 'charlie@gmail.com', mobile: '+1 (555) 345-6789', status: 'Qualified', value: 350000, lastContact: '2023-10-22', source: 'Zillow', assignedAgent: 'John Doe', tags: ['Pre-approved'] },
   { id: '4', name: 'Diana Prince', email: 'diana@themyscira.net', mobile: '+1 (555) 456-7890', status: 'Lost', value: 850000, lastContact: '2023-10-20', source: 'LinkedIn', assignedAgent: 'Sarah Connor', tags: ['Relocation'] },

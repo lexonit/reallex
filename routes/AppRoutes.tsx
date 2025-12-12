@@ -19,14 +19,16 @@ import {
   LoginPageWrapper,
   RegisterPageWrapper,
   LandingPageWrapper,
+  AcceptInvitePage,
 } from '../pages';
+import { PricingManagement } from '../containers/admin/PricingManagement';
 
 interface AppRoutesProps {
   currentUser: CurrentUser | null;
   authView: 'LOGIN' | 'REGISTER' | 'APP';
   isDarkMode: boolean;
   toggleDarkMode: () => void;
-  handleLogin: (role: UserRole) => void;
+  handleLogin: (auth: { token: string; user: CurrentUser }) => void;
   handleLogout: () => void;
   onNavigate: (tab: NavigationTab) => void;
 }
@@ -66,6 +68,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
   if (!currentUser) {
     return (
       <Routes>
+        <Route path="/accept-invite" element={<AcceptInvitePage />} />
         <Route
           path="/login"
           element={
@@ -102,11 +105,12 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
   // Routes for authenticated users
   return (
     <Routes>
+      <Route path="/accept-invite" element={<AcceptInvitePage />} />
       {/* Dashboard - Available to ADMIN and AGENT */}
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN', 'AGENT']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN', 'MANAGER', 'SALES_REP', 'AGENT']} currentUser={currentUser}>
             <DashboardPage user={currentUser} onNavigate={onNavigate} />
           </ProtectedRoute>
         }
@@ -116,7 +120,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/leads"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN', 'AGENT']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN', 'MANAGER', 'SALES_REP', 'AGENT']} currentUser={currentUser}>
             <LeadsPage user={currentUser} />
           </ProtectedRoute>
         }
@@ -126,7 +130,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/properties"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN', 'AGENT']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN', 'MANAGER', 'SALES_REP', 'AGENT']} currentUser={currentUser}>
             <PropertiesPage user={currentUser} />
           </ProtectedRoute>
         }
@@ -136,7 +140,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/deals"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN', 'AGENT']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN', 'MANAGER', 'SALES_REP', 'AGENT']} currentUser={currentUser}>
             <DealsPageWrapper user={currentUser} />
           </ProtectedRoute>
         }
@@ -146,7 +150,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/documents"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN', 'AGENT']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN', 'MANAGER', 'SALES_REP', 'AGENT']} currentUser={currentUser}>
             <DocumentsPageWrapper user={currentUser} />
           </ProtectedRoute>
         }
@@ -156,7 +160,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/calendar"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN', 'AGENT', 'CLIENT']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN', 'MANAGER', 'SALES_REP', 'AGENT', 'CLIENT']} currentUser={currentUser}>
             <CalendarPageWrapper user={currentUser} />
           </ProtectedRoute>
         }
@@ -166,7 +170,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/tasks"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN', 'AGENT', 'CLIENT']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN', 'MANAGER', 'SALES_REP', 'AGENT', 'CLIENT']} currentUser={currentUser}>
             <TasksPageWrapper user={currentUser} />
           </ProtectedRoute>
         }
@@ -176,7 +180,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/contacts"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN', 'AGENT']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN', 'MANAGER', 'SALES_REP', 'AGENT']} currentUser={currentUser}>
             <ContactsPageWrapper user={currentUser} />
           </ProtectedRoute>
         }
@@ -186,7 +190,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/approvals"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN']} currentUser={currentUser}>
             <ApprovalsPage />
           </ProtectedRoute>
         }
@@ -195,7 +199,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/users"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN']} currentUser={currentUser}>
             <UsersPage />
           </ProtectedRoute>
         }
@@ -204,7 +208,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/templates"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN']} currentUser={currentUser}>
             <TemplatesPage />
           </ProtectedRoute>
         }
@@ -213,8 +217,17 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/analytics"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN']} currentUser={currentUser}>
             <AnalyticsPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/pricing"
+        element={
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN']} currentUser={currentUser}>
+            <PricingManagement />
           </ProtectedRoute>
         }
       />
@@ -233,7 +246,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
       <Route
         path="/settings"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN', 'AGENT']} currentUser={currentUser}>
+          <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'VENDOR_ADMIN', 'ADMIN', 'MANAGER', 'SALES_REP', 'AGENT']} currentUser={currentUser}>
             <SettingsPageWrapper onNavigate={onNavigate} />
           </ProtectedRoute>
         }

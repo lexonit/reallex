@@ -38,7 +38,7 @@ export enum DealStage {
 }
 
 export type PropertyType = 'Single Family' | 'Condo' | 'Townhouse' | 'Multi-Family' | 'Land' | 'Commercial';
-export type UserRole = 'ADMIN' | 'AGENT' | 'CLIENT';
+export type UserRole = 'SUPER_ADMIN' | 'VENDOR_ADMIN' | 'MANAGER' | 'SALES_REP' | 'ADMIN' | 'AGENT' | 'CLIENT';
 
 export interface CurrentUser {
   id: string;
@@ -91,11 +91,34 @@ export interface Lead {
   nextAppointment?: string; // ISO date string for scheduled viewings
   notes?: string;
   tags?: string[];
+  scheduledViewingDate?: string; // ISO date string for viewing schedule
+  scheduledViewingNotes?: string; // Notes for the viewing schedule
+}
+
+export type DealType = 'BUY' | 'SELL' | 'LEASE' | 'RENT';
+export type FinancingType = 'CASH' | 'MORTGAGE' | 'FINANCING' | 'OTHER';
+export type ContingencyType = 'INSPECTION' | 'FINANCING' | 'APPRAISAL' | 'TITLE' | 'SALE_OF_PROPERTY';
+
+export interface DealContingency {
+  type: ContingencyType;
+  dueDate: string;
+  status: 'PENDING' | 'SATISFIED' | 'WAIVED' | 'FAILED';
+  notes?: string;
+}
+
+export interface DealMilestone {
+  id: string;
+  title: string;
+  dueDate: string;
+  completedDate?: string;
+  status: 'PENDING' | 'COMPLETED' | 'OVERDUE';
+  assignedTo?: string;
 }
 
 export interface Deal {
   id: string;
   name: string;
+  dealType: DealType;
   value: number;
   stage: DealStage;
   closeDate: string; // ISO Date
@@ -108,9 +131,58 @@ export interface Deal {
   propertyAddress?: string;
   agentId?: string;
   agentName?: string;
+  clientId?: string;
+  clientName?: string;
   
+  // Financial Details
+  listPrice?: number;
+  offerPrice?: number;
+  earnestMoney?: number;
+  downPayment?: number;
+  financingType?: FinancingType;
+  loanAmount?: number;
+  interestRate?: number;
+  
+  // Commission & Fees
+  commissionRate?: number;
+  commissionAmount?: number;
+  agentCommission?: number;
+  brokerFee?: number;
+  closingCosts?: number;
+  
+  // Dates
+  offerDate?: string;
+  acceptanceDate?: string;
+  inspectionDate?: string;
+  appraisalDate?: string;
+  closingDate?: string;
+  possessionDate?: string;
+  
+  // Contingencies
+  contingencies?: DealContingency[];
+  
+  // Milestones
+  milestones?: DealMilestone[];
+  
+  // Additional Parties
+  buyerAgent?: string;
+  sellerAgent?: string;
+  titleCompany?: string;
+  lender?: string;
+  attorney?: string;
+  inspector?: string;
+  
+  // Documents
+  documents?: string[];
+  
+  // Notes & Communication
   notes?: string;
+  tags?: string[];
+  
+  // System
   createdAt: string;
+  updatedAt?: string;
+  createdBy?: string;
 }
 
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
@@ -211,6 +283,10 @@ export interface Property {
   address: string;
   price: number;
   status: 'Draft' | 'Submitted' | 'Active' | 'Pending' | 'Sold' | 'Rejected';
+  approvalStatus?: string;
+  agentEmail?: string;
+  agentId?: string;
+  vendorId?: string;
   beds: number;
   baths: number;
   sqft: number;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { SettingsPage } from '../components/settings/SettingsPage';
+import { SettingsPage } from '../containers/settings/SettingsPage';
 import { NavigationTab } from '../types';
 
 interface SettingsPageWrapperProps {
